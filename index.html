@@ -1,40 +1,74 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
   <head>
-    <meta charset="utf-8" />
-    <title>Absensi</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <title>Absensi Karyawan</title>
+    <link rel="stylesheet" href="style.css" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
   </head>
   <body>
-    <h2>Absensi Lokasi</h2>
-    <button id="btn">📍 Absen Sekarang</button>
-    <p id="status"></p>
+    <div id="app">
+      <header>
+        <h1>📍 Absensi Karyawan Harian Rethapirnt</h1>
+        <p id="welcome">Silakan lakukan absensi Anda.</p>
+      </header>
+
+      <main>
+        <button id="checkin">✅ Absen Masuk</button>
+        <button id="checkout">⏰ Absen Pulang</button>
+      </main>
+
+      <footer>
+        <small>PT. Retha Gemilang Lestari © 2025</small>
+      </footer>
+    </div>
 
     <script>
+      // Telegram WebApp API
       const tg = window.Telegram.WebApp;
-      const btn = document.getElementById("btn");
-      const status = document.getElementById("status");
+      tg.ready();
+      tg.expand();
 
-      btn.onclick = () => {
-        navigator.geolocation.getCurrentPosition((pos) => {
-          const payload = {
-            user: tg.initDataUnsafe.user, // data user dari Telegram
-            lat: pos.coords.latitude,
-            lon: pos.coords.longitude,
-          };
+      // Ambil data user dari Telegram
+      const user = tg.initDataUnsafe.user;
+      if (user) {
+        document.getElementById("welcome").innerText = `Halo, ${user.first_name || user.username}!`;
+      }
 
-          fetch("https://n8n.proxmoxsgr.my.id/webhook-test/absensirethaptintotelebotok", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          })
-            .then((r) => r.json())
-            .then((data) => (status.innerText = data.message))
-            .catch((err) => (status.innerText = "Error: " + err));
-        });
+      // Tombol Absen
+      const sendAbsensi = (type) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition((pos) => {
+            const data = {
+              user: {
+                id: user.id,
+                username: user.username,
+              },
+              type: type,
+              lat: pos.coords.latitude,
+              lon: pos.coords.longitude,
+            };
+
+            // Kirim ke backend / n8n Webhook
+            fetch("https://n8n.proxmoxsgr.my.id/webhook-test/absensirethaptintotelebotok", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            })
+              .then((res) => res.json())
+              .then((result) => {
+                tg.showAlert(result.message || "✅ Absensi terkirim!");
+              })
+              .catch(() => tg.showAlert("❌ Gagal mengirim absensi"));
+          });
+        } else {
+          tg.showAlert("❌ Lokasi tidak tersedia di perangkat ini.");
+        }
       };
 
-      tg.expand();
+      document.getElementById("checkin").addEventListener("click", () => sendAbsensi("checkin"));
+      document.getElementById("checkout").addEventListener("click", () => sendAbsensi("checkout"));
     </script>
   </body>
 </html>
