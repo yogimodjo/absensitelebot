@@ -51,7 +51,7 @@
             };
 
             // Kirim ke backend / n8n Webhook
-            fetch("https://n8n.proxmoxsgr.my.id/webhook-test/absensirethaptintotelebotok", {
+            fetch("https://n8n.proxmoxsgr.my.id/webhook/absensirethaptintotelebotok", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(data),
@@ -72,3 +72,4 @@
     </script>
   </body>
 </html>
+
