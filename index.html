@@ -51,7 +51,7 @@
             };
 
             // Kirim ke backend / n8n Webhook
-            fetch("https://n8n.proxmoxsgr.my.id/webhook-test/256af2db-3cda-44db-8b28-b610f2a62da3", {
+            fetch("https://n8n.proxmoxsgr.my.id/webhook/256af2db-3cda-44db-8b28-b610f2a62da3", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(data),
@@ -72,6 +72,7 @@
     </script>
   </body>
 </html>
+
 
 
 
